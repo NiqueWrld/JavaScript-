@@ -1,0 +1,13 @@
+body {
+  font-size: 15pt;
+  text-align: center;
+}
+
+#rngVibrate {
+  width: 100%;
+}
+
+.vibrate-button {
+  width: 80px;
+  height: 50px;
+}
