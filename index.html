@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <style>
+        #video {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border: 1px solid black;
+        }
+        #result {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Scanner</h1>
+    <div id="result"></div>
+    <iframe id="myIframe" width="600" height="400" frameborder="0"></iframe>
+
+    <!-- Load jsQR from a reliable source -->
+    <script type="module">
+        import QrScanner from 'https://unpkg.com/qr-scanner/qr-scanner.min.js';
+
+        // Ensure QrScanner is initialized on page load
+        window.onload = () => {
+            const video = document.createElement('video');
+            const resultDiv = document.getElementById('result');
+            document.body.appendChild(video);
+            const qrScanner = new QrScanner(video, result => {
+                resultDiv.innerText = `QR Code Result: ${result}`;
+                sendToServer(result);
+                qrScanner.stop(); // Stop scanning after successful read
+            });
+
+            // Start scanning
+            QrScanner.hasCamera().then(hasCamera => {
+                if (hasCamera) {
+                    qrScanner.start();
+                } else {
+                    resultDiv.innerText = 'No camera found';
+                }
+            });
+        };
+
+        var iframe = document.getElementById("myIframe");
+
+        function sendToServer(result) {
+    fetch('https://logi-coin-server.vercel.app/qr-result', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ result: result })
+    })
+    .then(response => {
+        // Check if the response is OK (status in the range 200-299)
+        if (!response.ok) {
+            throw new Error('Network response was not ok: ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Redirecting to the received URL
+        window.location.href = data.message;
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+    </script>
+</body>
+</html>
